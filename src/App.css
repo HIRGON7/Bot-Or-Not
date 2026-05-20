@@ -1,0 +1,258 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #000;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.whole-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #000;
+}
+
+.the-morph {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+.section-line {
+  width: 100%;
+  height: 120px;
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8%;
+  cursor: pointer;
+}
+
+.loading-line {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow:
+    0 0 12px rgba(99, 102, 241, 0.35),
+    inset 0 0 12px rgba(255, 255, 255, 0.08);
+}
+
+.loading-line::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #4f46e5,
+    #818cf8,
+    #ffffff,
+    #818cf8,
+    #4f46e5
+  );
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.9),
+    0 0 45px rgba(99, 102, 241, 0.6);
+  transition: width 0.8s ease;
+}
+
+.section-line:hover .loading-line::before {
+  width: 100%;
+}
+
+.section-line.is-loading .loading-line::before {
+  width: 100%;
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+.loading-line span {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+@keyframes loadingPulse {
+  0% {
+    opacity: 0.45;
+    filter: brightness(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.5);
+  }
+
+  100% {
+    opacity: 0.45;
+    filter: brightness(0.8);
+  }
+}
+
+.info-div {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  padding: 5rem 8%;
+  background:
+    radial-gradient(circle at top right, rgba(99, 102, 241, 0.18), transparent 35%),
+    linear-gradient(to bottom, #050509, #080812);
+}
+
+.info-header {
+  max-width: 850px;
+  margin-bottom: 3rem;
+}
+
+.info-header span {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+  color: #c7d2fe;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.info-header h2 {
+  margin: 0 0 1rem;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.info-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.empty-card,
+.error-card {
+  max-width: 800px;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.error-card {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.35);
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+
+.result-card {
+  padding: 1.5rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+}
+
+.result-card h3 {
+  margin: 0 0 0.8rem;
+  color: #c7d2fe;
+  font-size: 1rem;
+}
+
+.result-card p {
+  margin: 0.4rem 0;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+}
+
+.result-card h1 {
+  margin: 0;
+  font-size: 3.2rem;
+  letter-spacing: 2px;
+}
+
+.big-card {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.35),
+    rgba(255, 255, 255, 0.06)
+  );
+}
+
+.wide-card {
+  grid-column: span 3;
+}
+
+.token-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.token-list span {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.18);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-card {
+    grid-column: span 1;
+  }
+
+  .info-header h2 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .info-div {
+    padding: 4rem 1.2rem;
+  }
+
+  .info-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .section-line {
+    height: 95px;
+    padding: 0 1.2rem;
+  }
+}
