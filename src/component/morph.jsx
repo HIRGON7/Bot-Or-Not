@@ -4,18 +4,22 @@ import gsap from "gsap";
 import "../styles/Morph.css";
 
 const COUNT = 12000;
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/predict";
+  const apiUrl = import.meta.env.VITE_API_URL;
 
+const API_URL = apiUrl;
 function Morph({ onResult, onError, onLoading }) {
   const containerRef = useRef(null);
   const morphToTextRef = useRef(null);
+
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     let scene;
     let camera;
@@ -80,6 +84,7 @@ function Morph({ onResult, onError, onLoading }) {
     function createTextPoints(value) {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
+
       const fontSize = 100;
       const padding = 20;
 
@@ -103,7 +108,10 @@ function Morph({ onResult, onError, onLoading }) {
       const points = [];
 
       for (let i = 0; i < pixels.length; i += 4) {
-        if (pixels[i] > 128 && Math.random() < 0.35) {
+        const pixelIsVisible = pixels[i] > 128;
+        const shouldUsePixel = Math.random() < 0.35;
+
+        if (pixelIsVisible && shouldUsePixel) {
           const x = (i / 4) % canvas.width;
           const y = Math.floor(i / 4 / canvas.width);
 
@@ -124,13 +132,16 @@ function Morph({ onResult, onError, onLoading }) {
 
       const positions = particles.geometry.attributes.position.array;
       const startPositions = Float32Array.from(positions);
-      const progress = { value: 0 };
+
+      const progress = {
+        value: 0,
+      };
 
       activeTween = gsap.to(progress, {
         value: 1,
         duration: 2.4,
         ease: "power2.inOut",
-        onUpdate: () => {
+        onUpdate: function () {
           for (let i = 0; i < positions.length; i++) {
             positions[i] =
               startPositions[i] +
@@ -142,8 +153,14 @@ function Morph({ onResult, onError, onLoading }) {
       });
     }
 
-    morphToTextRef.current = (value) => {
-      if (!particles || !value) return;
+    morphToTextRef.current = function (value) {
+      if (!particles) {
+        return;
+      }
+
+      if (!value) {
+        return;
+      }
 
       state.current = "text";
 
@@ -186,7 +203,10 @@ function Morph({ onResult, onError, onLoading }) {
 
     camera.position.z = 25;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000);
@@ -206,19 +226,26 @@ function Morph({ onResult, onError, onLoading }) {
     }
 
     function handleResize() {
-      if (!containerRef.current) return;
-
       const currentContainer = containerRef.current;
+
+      if (!currentContainer) {
+        return;
+      }
 
       camera.aspect = currentContainer.clientWidth / currentContainer.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(currentContainer.clientWidth, currentContainer.clientHeight);
+
+      renderer.setSize(
+        currentContainer.clientWidth,
+        currentContainer.clientHeight
+      );
     }
 
     window.addEventListener("resize", handleResize);
+
     animate();
 
-    return () => {
+    return function cleanup() {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
 
@@ -240,17 +267,52 @@ function Morph({ onResult, onError, onLoading }) {
     };
   }, []);
 
+  function getPredictionFromData(data) {
+    let prediction = "UNKNOWN";
+
+    if (data.prediction) {
+      prediction = data.prediction;
+    } else if (data.predicted_label) {
+      prediction = data.predicted_label;
+    } else if (data.label) {
+      prediction = data.label;
+    } else if (data.result) {
+      prediction = data.result;
+    }
+
+    return prediction;
+  }
+
+  function getButtonText() {
+    if (loading) {
+      return "Checking...";
+    }
+
+    return "Create";
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
     const cleanText = text.trim();
 
-    if (!cleanText) return;
+    if (!cleanText) {
+      return;
+    }
 
     setLoading(true);
-    onLoading?.(true);
-    onError?.("");
-    onResult?.(null);
+
+    if (onLoading) {
+      onLoading(true);
+    }
+
+    if (onError) {
+      onError("");
+    }
+
+    if (onResult) {
+      onResult(null);
+    }
 
     try {
       const response = await fetch(API_URL, {
@@ -269,23 +331,28 @@ function Morph({ onResult, onError, onLoading }) {
 
       const data = await response.json();
 
-      const prediction =
-        data.prediction ||
-        data.predicted_label ||
-        data.label ||
-        data.result ||
-        "UNKNOWN";
-
+      const prediction = getPredictionFromData(data);
       const finalPrediction = prediction.toUpperCase();
 
-      onResult?.(data);
-      onError?.("");
+      if (onResult) {
+        onResult(data);
+      }
+
+      if (onError) {
+        onError("");
+      }
+
       morphToTextRef.current(finalPrediction);
     } catch (err) {
-      onError?.("Could not connect to the FastAPI backend.");
+      if (onError) {
+        onError("Could not connect to the FastAPI backend.");
+      }
     } finally {
       setLoading(false);
-      onLoading?.(false);
+
+      if (onLoading) {
+        onLoading(false);
+      }
     }
   }
 
@@ -313,7 +380,8 @@ function Morph({ onResult, onError, onLoading }) {
                   strokeLinejoin="round"
                 />
               </svg>
-              <span>{loading ? "Checking..." : "Create"}</span>
+
+              <span>{getButtonText()}</span>
             </span>
           </button>
         </div>
