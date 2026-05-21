@@ -82,11 +82,11 @@ function App() {
         <div className="info-header">
           <span>Analysis Result</span>
 
-          <h2>DistilBERT Detection Details</h2>
+          <h2>VORA</h2>
 
           <p>
-            The Futuristic morphing sphere decides whether the text is Ai or Human above. This section explains
-            the futuristic Futuristic morphing sphere's response: prediction, probabilities, tokenizer
+            The Visionary Orb Reasoning Assistant decides whether the text is Ai or Human above. This section explains
+            the Visionary Orb Reasoning Assistant's response: prediction, probabilities, tokenizer
             details, and linguistic analysis.
           </p>
         </div>
