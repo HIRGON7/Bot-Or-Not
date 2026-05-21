@@ -6,20 +6,37 @@ function App() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analysisError, setAnalysisError] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const infoRef = useRef(null);
 
-  const prediction =
-    analysisResult?.prediction ||
-    analysisResult?.predicted_label ||
-    analysisResult?.label ||
-    analysisResult?.result;
+  const infoSectionRef = useRef(null);
+
+  let prediction = "";
+
+  if (analysisResult) {
+    prediction = analysisResult.prediction;
+  }
+
+  let sectionLineClass = "section-line";
+
+  if (isAnalyzing) {
+    sectionLineClass = "section-line is-loading";
+  }
+
+  let loadingText = "Scroll for full analysis";
+
+  if (isAnalyzing) {
+    loadingText = "Analyzing text...";
+  }
 
   function formatPercent(value) {
-    if (value === undefined || value === null) return null;
+    if (value === undefined || value === null) {
+      return null;
+    }
 
     const number = Number(value);
 
-    if (Number.isNaN(number)) return null;
+    if (Number.isNaN(number)) {
+      return null;
+    }
 
     if (number > 1) {
       return `${number.toFixed(2)}%`;
@@ -28,11 +45,21 @@ function App() {
     return `${(number * 100).toFixed(2)}%`;
   }
 
-  function scrollToInfo() {
-    infoRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+  function scrollToInfoSection() {
+    if (infoSectionRef.current) {
+      infoSectionRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }
+
+  function getTokenText(item) {
+    if (typeof item === "string") {
+      return item;
+    }
+
+    return item.token;
   }
 
   return (
@@ -45,31 +72,35 @@ function App() {
         />
       </section>
 
-      <div
-        className={`section-line ${isAnalyzing ? "is-loading" : ""}`}
-        onClick={scrollToInfo}
-      >
+      <div className={sectionLineClass} onClick={scrollToInfoSection}>
         <div className="loading-line">
-          <span>{isAnalyzing ? "Analyzing text..." : "Scroll for full analysis"}</span>
+          <span>{loadingText}</span>
         </div>
       </div>
 
-      <section className="info-div" ref={infoRef}>
+      <section className="info-div" ref={infoSectionRef}>
         <div className="info-header">
           <span>Analysis Result</span>
+
           <h2>DistilBERT Detection Details</h2>
+
           <p>
-            The morphing sphere shows the final answer above. This section shows
-            the full backend response: prediction, probabilities, tokenizer
+            The Futuristic morphing sphere decides whether the text is Ai or Human above. This section explains
+            the futuristic Futuristic morphing sphere's response: prediction, probabilities, tokenizer
             details, and linguistic analysis.
           </p>
         </div>
 
-        {analysisError && <div className="error-card">{analysisError}</div>}
+        {analysisError && (
+          <div className="error-card">
+            {analysisError}
+          </div>
+        )}
 
         {!analysisResult && !analysisError && (
           <div className="empty-card">
-            Write text above, press Create, then scroll here to see the full analysis.
+            Write text above, press Create, then scroll here to see the full
+            analysis.
           </div>
         )}
 
@@ -77,7 +108,7 @@ function App() {
           <div className="result-grid">
             <div className="result-card big-card">
               <h3>Prediction</h3>
-              <h1>{prediction?.toUpperCase()}</h1>
+              <h1>{prediction.toUpperCase()}</h1>
             </div>
 
             {analysisResult.confidence !== undefined && (
@@ -120,11 +151,16 @@ function App() {
                 <h3>Linguistic Analysis</h3>
 
                 {analysisResult.linguistic_analysis.sentence_count !== undefined && (
-                  <p>Sentences: {analysisResult.linguistic_analysis.sentence_count}</p>
+                  <p>
+                    Sentences:{" "}
+                    {analysisResult.linguistic_analysis.sentence_count}
+                  </p>
                 )}
 
                 {analysisResult.linguistic_analysis.word_count !== undefined && (
-                  <p>Words: {analysisResult.linguistic_analysis.word_count}</p>
+                  <p>
+                    Words: {analysisResult.linguistic_analysis.word_count}
+                  </p>
                 )}
 
                 {analysisResult.linguistic_analysis.unique_word_count !== undefined && (
@@ -139,6 +175,7 @@ function App() {
             {Array.isArray(analysisResult.tokens) && (
               <div className="result-card wide-card">
                 <h3>Tokens</h3>
+
                 <div className="token-list">
                   {analysisResult.tokens.slice(0, 100).map((token, index) => (
                     <span key={index}>{token}</span>
@@ -150,11 +187,10 @@ function App() {
             {Array.isArray(analysisResult.top_tokens) && (
               <div className="result-card wide-card">
                 <h3>Top Tokens</h3>
+
                 <div className="token-list">
                   {analysisResult.top_tokens.slice(0, 60).map((item, index) => (
-                    <span key={index}>
-                      {typeof item === "string" ? item : item.token}
-                    </span>
+                    <span key={index}>{getTokenText(item)}</span>
                   ))}
                 </div>
               </div>
